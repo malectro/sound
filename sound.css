@@ -2,10 +2,13 @@
 
 body {
     background: #111;
+    font-family: Helvetica;
 }
 
 .sequencer {
-    width: 800px;
+  float: left;
+  width: 800px;
+  margin-right: 10px;
 }
 
 .node {
@@ -28,4 +31,25 @@ body {
 
 .node.on.ticked {
     background: -moz-linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #ccc 100%);
+}
+
+
+.controls {
+  color: #eee;
+  float: left;
+  font-weight: normal;
+  /* text-shadow: 0 -1px 1px #aaa; */
+}
+.controls > label {
+  display: block;
+  margin-top: 10px;
+}
+.controls > input {
+  width: 50px;
+  cursor: move;
+  background: #000;
+  color: rgb(100, 200, 100);
+  border: none;
+  font-size: 14px;
+  box-shadow: inset 4px 4px 10px -6px #fff;
 }

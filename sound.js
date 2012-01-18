@@ -1,8 +1,62 @@
+jQuery.fn.range = (function () {
+  var _down = false,
+      _val = 0,
+      _options = {},
+      _x = 0,
+      _y = 0,
+      _el,
+      _pix = 1;
+
+
+  function _mousedown(event) {
+    _el = $(this);
+    
+    _down = true;
+    _val = parseInt(_el.val(), 10);
+    _options = _el.data('range-info');
+    
+    _x = event.clientX;
+    _y = event.clientY;
+    
+    _pix = (_options.max - _options.min) / 500;
+    
+    $(document.body).bind('mousemove.range', _move).bind('mouseup.range', _mouseup);
+  }
+  
+  function _move(event) {
+    var val = parseInt(_val + (_y - event.clientY) * _pix, 10);
+  
+    if (val > _options.max || val < _options.min) {
+      return;
+    }
+  
+    _el.val(val).change();
+  }
+  
+  function _mouseup() {
+    $(document.body).unbind('.range');
+  }
+
+  return function (min, max, step) {
+    var options = {};
+  
+    options.min = min || 0;
+    options.max = max || 100;
+    options.step = step || 1;
+    
+    this.data('range-info', options);
+    
+    this.mousedown(_mousedown);
+  };
+}());
+
+
 var Sound = (function ($) {
     var me = {},
 
         SAMPLE_RATE = 44100, //htz
         SUSTAIN = 200, //ms
+        ATTACK = 1,
         MAX_BUFFERS = 40,
         PI = Math.PI,
         TRACKS = 6,
@@ -42,25 +96,33 @@ var Sound = (function ($) {
             _buffers = {};
             
         function _genBuffer(freq) {
-            var buffer = new Float32Array(SAMPLE_RATE * (SUSTAIN / 1000)),
+            var attack = parseInt(SAMPLE_RATE * ATTACK / 1000, 10),
+                sus = parseInt(SAMPLE_RATE * SUSTAIN / 1000, 10),
+                buffer = new Float32Array(attack + sus),
             
             factor = PI * freq * 2 / SAMPLE_RATE;
             
-            for (var i = 0, l = buffer.length; i < l; i++) {
+            for (var i = 0; i < attack; i++) {
+              buffer[i] = Math.sin(i * factor) * i / attack;
+            }
+            
+            for (l = buffer.length; i < l; i++) {
                 //buffer[i] = Math.pow(-1, parseInt(i*factor));
                 //buffer[i] = Math.sin(i * factor) * Math.exp(-i / 1600);
-                buffer[i] = Math.sin(i * factor) * (l - i) / l;
+                buffer[i] = Math.sin(i * factor) * (l - i) / (l - attack);
             }
             
             return buffer;
         }
         
         me.get = function (freq) {
-            if (!_buffers[freq]) {
-                _buffers[freq] = _genBuffer(freq);
-            }
-            
-            return _buffers[freq];
+          var key = freq + ':' + SAMPLE_RATE + ':' + SUSTAIN + ':' + ATTACK;
+        
+          if (!_buffers[key]) {
+              _buffers[key] = _genBuffer(freq);
+          }
+          
+          return _buffers[key];
         };
     
         return me;
@@ -150,7 +212,7 @@ var Sound = (function ($) {
                 _nodes[i][j] = node;
             }
         }
-        sequencer.appendTo(document.body);
+        sequencer.appendTo('.sequencer-case');
         
         function _tick() {
             var prev = _location;
@@ -216,12 +278,40 @@ var Sound = (function ($) {
             _interval = 0;
         };
         
+        me.playPause = function () {
+          if (_interval) {
+            me.stop();
+          }
+          else {
+            me.start();
+          }
+        };
+        
         return me;
+    }(me));
+    
+    me.Controls = (function (Sound) {
+      
+      $('.sample-rate').val(44100).change(function () {
+        SAMPLE_RATE = parseInt($(this).val(), 10);
+      }).range(0, 44100, 1);
+      
+      $('.sustain').val(200).change(function () {
+        SUSTAIN = parseInt($(this).val(), 10);
+      }).range(0, 2000, 1);
+      
+      $('.attack').val(1).change(function () {
+        ATTACK = parseInt($(this).val(), 10);
+      }).range(0, 200, 1);
+      
     }(me));
 
     me.test = function () {
         me.Tracks.start();
     };
     
+    me.playPause = me.Tracks.playPause;
+    
     return me;
 }(jQuery));
+

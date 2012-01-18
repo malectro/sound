@@ -5,7 +5,18 @@
 		<link rel="stylesheet" href="sound.css" type="text/css" />
 	</head>
 	<body>
-	   <button onclick="Sound.test();">Start</button>
+	   <div class="sequencer-case"></div>
+	   
+	   <div class="controls">
+	     <button onclick="Sound.playPause();">Play/Pause</button>
+	     <label>Sample Rate</label>
+  	   <input type="range" class="sample-rate" />
+  	   <label>Attack</label>
+  	   <input type="range" class="attack" />
+  	   <label>Sustain</label>
+  	   <input type="range" class="sustain" />
+	   </div>
+	   
 	   <script type="text/javascript" src="jquery.js"></script>
 	   <script type="text/javascript" src="sound.js"></script>
 	</body>
