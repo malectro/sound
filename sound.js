@@ -54,6 +54,9 @@ jQuery.fn.range = (function () {
 var Sound = (function ($) {
     var me = {},
 
+        MAX_SAMPLE_RATE = 44100,
+        MIN_SAMPLE_RATE = 22050,
+        SAMPLE_RANGE = MAX_SAMPLE_RATE - MIN_SAMPLE_RATE,
         SAMPLE_RATE = 44100, //htz
         SUSTAIN = 200, //ms
         ATTACK = 1,
@@ -184,7 +187,8 @@ var Sound = (function ($) {
     me.Output = (function () {
         var me = {},
 
-            _tracks = {};
+            _tracks = {},
+            _compressor;
 
         function _getTrack(track) {
             if (!_tracks[track]) {
@@ -197,12 +201,14 @@ var Sound = (function ($) {
 
         function _getWebAudioTrack(track) {
           var source = AudioCtx.createBufferSource();
-          source.connect(AudioCtx.destination);
+          source.connect(_compressor);
           return source;
         }
 
         if (AudioCtx) {
           _getTrack = _getWebAudioTrack;
+          _compressor = AudioCtx.createDynamicsCompressor();
+          _compressor.connect(AudioCtx.destination);
         }
 
         me.route = function (track, buffer) {
@@ -345,9 +351,10 @@ var Sound = (function ($) {
         }
       });
 
-      $('.sample-rate').val(44100).change(function () {
-        SAMPLE_RATE = parseInt($(this).val(), 10);
-      }).range(0, 44100, 1);
+      $('.sample-rate').val(100).change(function () {
+        SAMPLE_RATE = parseInt($(this).val() * SAMPLE_RANGE / 100 + MIN_SAMPLE_RATE, 10);
+        // this now longer does crap
+      }).range(22050, 44100, 1);
 
       $('.sustain').val(200).change(function () {
         SUSTAIN = parseInt($(this).val(), 10);
