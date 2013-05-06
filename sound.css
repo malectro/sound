@@ -1,8 +1,8 @@
 .clearfix:after{content:".";display:block;clear:both;visibility:hidden;line-height:0;height:0;}.clearfix{display:inline-block;}html[xmlns] .clearfix{display:block;}* html .clearfix{height:1%;}div.clearfix{display:block;}
 
 body {
-    background: #111;
-    font-family: Helvetica;
+  background: #111;
+  font-family: Helvetica;
 }
 
 .sequencer {
@@ -12,25 +12,28 @@ body {
 }
 
 .node {
-    float: left;
-    width: 98px;
-    height: 98px;
-    margin: 0 0 2px 2px;
-    background-color: #666;
-    border-radius: 15px;
-    background: -moz-linear-gradient(#666 0%, #555 10%, #444 90%, #333 100%);
+  float: left;
+  width: 98px;
+  height: 98px;
+  margin: 0 0 2px 2px;
+  background-color: #666;
+  border-radius: 15px;
+  background: -moz-linear-gradient(#666 0%, #555 10%, #444 90%, #333 100%);
 }
 
 .node.on {
-    background: -moz-linear-gradient(#ccc 0%, #aaa 10%, #999 90%, #888 100%);
+  background: #999;
+  background: -moz-linear-gradient(#ccc 0%, #aaa 10%, #999 90%, #888 100%);
 }
 
 .node.ticked {
-    background: -moz-linear-gradient(#ccc 0%, #aaa 10%, #999 90%, #888 100%);
+  background: #99e;
+  background: -moz-linear-gradient(#ccc 0%, #aaa 10%, #999 90%, #888 100%);
 }
 
 .node.on.ticked {
-    background: -moz-linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #ccc 100%);
+  background: #eee;
+  background: -moz-linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #ccc 100%);
 }
 
 
