@@ -275,7 +275,7 @@ var Sound = (function ($) {
             }
 
             for (var i = 0; i < TRACKS; i++) {
-                if (_tracks[i][prev]) {
+                if (_tracks[i][_location]) {
                     if (DSP || AudioCtx) {
                         Sound.Output.route(i, Sound.Buffers.get(_scale[i]));
                     }
@@ -285,10 +285,8 @@ var Sound = (function ($) {
                 }
             }
 
-            _paintColumn(prev, 1);
-            setTimeout(function () {
-                _paintColumn(prev, 0);
-            }, 100);
+            _paintColumn(_location, 1);
+            _paintColumn(prev, 0);
         }
 
         function _paintColumn(col, on) {
@@ -356,12 +354,20 @@ var Sound = (function ($) {
         // this now longer does crap
       }).range(22050, 44100, 1);
 
+      $('.tempo').val(50).change(function() {
+        TEMPO = parseInt(1.2 * $(this).val(), 10);
+        me.Tracks.stop();
+        me.Tracks.start();
+      });
+
       $('.sustain').val(200).change(function () {
-        SUSTAIN = parseInt($(this).val(), 10);
+        //SUSTAIN = parseInt($(this).val(), 10);
+        SUSTAIN = 20 * $(this).val();
       }).range(0, 2000, 1);
 
       $('.attack').val(1).change(function () {
-        ATTACK = parseInt($(this).val(), 10);
+        //ATTACK = parseInt($(this).val(), 10);
+        ATTACK = 2 * $(this).val();
       }).range(0, 200, 1);
 
     }(me));
