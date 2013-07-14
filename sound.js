@@ -209,6 +209,9 @@ var Sound = (function ($) {
           _getTrack = _getWebAudioTrack;
           _compressor = AudioCtx.createDynamicsCompressor();
           _compressor.connect(AudioCtx.destination);
+
+          _delay = AudioCtx.createDelay();
+          _delay.connect(_compressor);
         }
 
         me.route = function (track, buffer) {
