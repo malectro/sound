@@ -157,9 +157,45 @@ var Sound = (function ($) {
         };
 
         node.input = function (node) {
-          node.connect(this.wetDry.wet);
-          node.connect(this.wetDry.dry);
+          this.wetDry.input(node);
         };
+
+        return node;
+      };
+
+      me.createDistortion = function () {
+        var node = {};
+
+        node.waveShaper = AudioCtx.createWaveShaper();
+        node.wetDry = me.createWetDry();
+
+        node.wetDry.wet.connect(node.waveShaper);
+
+        node.waveShaper.curve = new Float32Array([
+          0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1
+        ]);
+
+        node.connect = function (node) {
+          this.wetDry.dry.connect(node);
+          this.waveShaper.connect(node);
+        };
+
+        node.input = function (node) {
+          this.wetDry.input(node);
+        };
+
+        node.amount = function (amount) {
+          var step = 1 / amount;
+          var arr = [];
+
+          for (var i = 0; i <= amount; i++) {
+            arr[i] = i * step;
+          }
+
+          this.waveShaper.curve = new Float32Array(arr);
+        };
+
+        node.amount(20);
 
         return node;
       };
@@ -280,8 +316,11 @@ var Sound = (function ($) {
           _compressor = AudioCtx.createDynamicsCompressor();
           _compressor.connect(AudioCtx.destination);
 
+          me.distortion = Sound.Nodes.createDistortion();
+          me.distortion.connect(_compressor);
+
           _delay = Sound.Nodes.createDelay();
-          _delay.connect(_compressor);
+          me.distortion.input(_delay);
 
           me.delay = _delay;
         }
