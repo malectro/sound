@@ -117,9 +117,14 @@ var Sound = (function ($) {
           this.dry.gain.value = 1 - percentage;
         };
 
-        node.connect = function (node) {
-          this.wet.connect(node);
-          this.dry.connect(node);
+        node.setWetDry = function (wet, dry) {
+          this.wet.gain.value = wet;
+          this.dry.gain.value = dry;
+        };
+
+        node.input = function (node) {
+          node.connect(this.wet);
+          node.connect(this.dry);
         };
 
         return node;
@@ -129,17 +134,25 @@ var Sound = (function ($) {
         var node = {};
 
         node.delay = AudioCtx.createDelay();
-        node.wetDry = me.createWetDry();
-        node.wetDry.setWet(1);
+        node.delay.delayTime.value = 0.2;
 
-        node.delay.connect(node.wetDry.wet);
+        node.wetDry = me.createWetDry();
+        node.wetDry.setWet(0);
+
+        node.feedback = me.createWetDry();
+        node.feedback.setWetDry(0, 1);
+
+        node.wetDry.wet.connect(node.delay);
+        node.feedback.input(node.delay);
+        node.feedback.wet.connect(node.delay);
 
         node.connect = function (otherNode) {
-          this.wetDry.connect(otherNode);
+          this.feedback.dry.connect(otherNode);
+          this.wetDry.dry.connect(otherNode);
         };
 
         node.input = function (node) {
-          node.connect(this.delay);
+          node.connect(this.wetDry.wet);
           node.connect(this.wetDry.dry);
         };
 
