@@ -62,9 +62,9 @@ var Sound = (function ($) {
         ATTACK = 1,
         MAX_BUFFERS = 40,
         PI = Math.PI,
-        TRACKS = 6,
+        TRACKS = 11,
         TEMPO = 60, //bpm
-        NOTES = 8, //notes per beat
+        NOTES = 16, //notes per beat
 
         DSP = ((new Audio()).mozWriteAudio) ? true : false,
 
@@ -77,7 +77,11 @@ var Sound = (function ($) {
 
         if (DSP || AudioCtx) {
             _scale = [
-                //164.81,
+                65.4064,
+                82.4069,
+                98,
+                130.81,
+                164.81,
                 196.00,
                 261.63,
                 329.628,

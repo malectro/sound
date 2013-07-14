@@ -13,11 +13,11 @@ body {
 
 .node {
   float: left;
-  width: 98px;
-  height: 98px;
+  width: 48px;
+  height: 48px;
   margin: 0 0 2px 2px;
   background-color: #666;
-  border-radius: 15px;
+  border-radius: 10px;
   background: -moz-linear-gradient(#666 0%, #555 10%, #444 90%, #333 100%);
 }
 
