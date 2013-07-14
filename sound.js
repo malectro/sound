@@ -50,6 +50,11 @@ jQuery.fn.range = (function () {
   };
 }());
 
+jQuery.fn.rangeVal = function () {
+  var rangeInfo = this.data('range-info');
+  return this.val() * (rangeInfo.max - rangeInfo.min) / 100 + rangeInfo.min;
+};
+
 
 var Sound = (function ($) {
     var me = {},
@@ -133,7 +138,7 @@ var Sound = (function ($) {
       me.createDelay = function () {
         var node = {};
 
-        node.delay = AudioCtx.createDelay();
+        node.delay = AudioCtx.createDelay(2);
         node.delay.delayTime.value = 0.2;
 
         node.wetDry = me.createWetDry();
@@ -277,6 +282,8 @@ var Sound = (function ($) {
 
           _delay = Sound.Nodes.createDelay();
           _delay.connect(_compressor);
+
+          me.delay = _delay;
         }
 
         me.route = function (track, buffer) {
@@ -437,6 +444,18 @@ var Sound = (function ($) {
         //ATTACK = parseInt($(this).val(), 10);
         ATTACK = 2 * $(this).val();
       }).range(0, 200, 1);
+
+      $('.delay-time').val(0).change(function () {
+        Sound.Output.delay.delay.delayTime.value = $(this).rangeVal();
+      }).range(0, 2);
+
+      $('.delay-wet').val(0).change(function () {
+        Sound.Output.delay.wetDry.setWet($(this).rangeVal());
+      }).range(0, 1);
+
+      $('.delay-feedback').val(0).change(function () {
+        Sound.Output.delay.feedback.wet.gain.value = $(this).rangeVal();
+      }).range(0, 0.5);
 
     }(me));
 

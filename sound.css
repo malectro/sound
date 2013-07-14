@@ -48,7 +48,7 @@ body {
   margin-top: 10px;
 }
 .controls > input {
-  width: 50px;
+  width: 100px;
   cursor: move;
   background: #000;
   color: rgb(100, 200, 100);
