@@ -53,6 +53,7 @@ jQuery.fn.range = (function () {
 
 var Sound = (function ($) {
     var me = {},
+        Sound = me,
 
         MAX_SAMPLE_RATE = 44100,
         MIN_SAMPLE_RATE = 22050,
@@ -101,6 +102,52 @@ var Sound = (function ($) {
                 'C4'
             ];
         }
+
+    me.Nodes = (function () {
+      var me = {};
+
+      me.createWetDry = function () {
+        var node = {};
+
+        node.wet = AudioCtx.createGain();
+        node.dry = AudioCtx.createGain();
+
+        node.setWet = function (percentage) {
+          this.wet.gain.value = percentage;
+          this.dry.gain.value = 1 - percentage;
+        };
+
+        node.connect = function (node) {
+          this.wet.connect(node);
+          this.dry.connect(node);
+        };
+
+        return node;
+      };
+
+      me.createDelay = function () {
+        var node = {};
+
+        node.delay = AudioCtx.createDelay();
+        node.wetDry = me.createWetDry();
+        node.wetDry.setWet(1);
+
+        node.delay.connect(node.wetDry.wet);
+
+        node.connect = function (otherNode) {
+          this.wetDry.connect(otherNode);
+        };
+
+        node.input = function (node) {
+          node.connect(this.delay);
+          node.connect(this.wetDry.dry);
+        };
+
+        return node;
+      };
+
+      return me;
+    }());
 
     //Buffers, generates and caches simple sin() buffers for use in signal processing
     me.Buffers = (function () {
@@ -205,7 +252,8 @@ var Sound = (function ($) {
 
         function _getWebAudioTrack(track) {
           var source = AudioCtx.createBufferSource();
-          source.connect(_compressor);
+          //source.connect(_compressor);
+          _delay.input(source);
           return source;
         }
 
@@ -214,7 +262,7 @@ var Sound = (function ($) {
           _compressor = AudioCtx.createDynamicsCompressor();
           _compressor.connect(AudioCtx.destination);
 
-          _delay = AudioCtx.createDelay();
+          _delay = Sound.Nodes.createDelay();
           _delay.connect(_compressor);
         }
 
