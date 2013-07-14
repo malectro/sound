@@ -172,6 +172,9 @@ var Sound = (function ($) {
 
         node.wetDry.wet.connect(node.waveShaper);
 
+        node.__amount = 100;
+        node.__curve = 0;
+
         node.waveShaper.curve = new Float32Array([
           0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1
         ]);
@@ -189,11 +192,20 @@ var Sound = (function ($) {
           var step = 1 / amount;
           var arr = [];
 
+          this.__amount = amount;
+
           for (var i = 0; i <= amount; i++) {
             arr[i] = i * step;
+            arr[i] = (1 - this.__curve) * i * step + this.__curve * Math.cos(i * Math.PI / amount + Math.PI);
+            arr[i] = i * step + (Math.random() * step * 2 - step) * this.__curve;
           }
 
           this.waveShaper.curve = new Float32Array(arr);
+        };
+
+        node.curve = function (amount) {
+          this.__curve = amount;
+          node.amount(this.__amount);
         };
 
         node.amount(20);
@@ -505,7 +517,7 @@ var Sound = (function ($) {
         Sound.Output.distortion.amount($(this).rangeVal());
       });
 
-      $('.distortion-curve').val(0).range(0, 100).change(function () {
+      $('.distortion-curve').val(0).range(0, 1).change(function () {
         Sound.Output.distortion.curve($(this).rangeVal());
       });
 
