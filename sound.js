@@ -46,7 +46,7 @@ jQuery.fn.range = (function () {
 
     this.data('range-info', options);
 
-    this.mousedown(_mousedown);
+    return this.mousedown(_mousedown);
   };
 }());
 
@@ -168,6 +168,7 @@ var Sound = (function ($) {
 
         node.waveShaper = AudioCtx.createWaveShaper();
         node.wetDry = me.createWetDry();
+        node.wetDry.setWet(0);
 
         node.wetDry.wet.connect(node.waveShaper);
 
@@ -495,6 +496,18 @@ var Sound = (function ($) {
       $('.delay-feedback').val(0).change(function () {
         Sound.Output.delay.feedback.wet.gain.value = $(this).rangeVal();
       }).range(0, 0.5);
+
+      $('.distortion-wet').val(0).range(0, 1).change(function () {
+        Sound.Output.distortion.wetDry.setWet($(this).rangeVal());
+      });
+
+      $('.distortion-depth').val(100).range(0, 100).change(function () {
+        Sound.Output.distortion.amount($(this).rangeVal());
+      });
+
+      $('.distortion-curve').val(0).range(0, 100).change(function () {
+        Sound.Output.distortion.curve($(this).rangeVal());
+      });
 
     }(me));
 
