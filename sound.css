@@ -39,7 +39,7 @@ body.presentation #sequencer .sequencer {
   margin: 0;
   border-radius: 0;
   background: #111;
-  transition: opacity 200ms ease-out;
+  transition: opacity 100ms ease-out;
 }
 
 .node.on {
