@@ -80,7 +80,7 @@ var Sound = (function ($) {
         _pScale;
 
         if (webkitAudioContext) {
-          AudioCtx = new webkitAudioContext;
+          AudioCtx = Sound.ctx = new webkitAudioContext;
         }
 
         if (DSP || AudioCtx) {
@@ -363,8 +363,14 @@ var Sound = (function ($) {
           _compressor = AudioCtx.createDynamicsCompressor();
           _compressor.connect(AudioCtx.destination);
 
+          me.biquad = AudioCtx.createBiquadFilter();
+          me.biquad.type = "lowpass";
+          me.biquad.frequency.value = 440;
+          me.biquad.Q.value = 0.1;
+          me.biquad.connect(_compressor);
+
           me.distortion = Sound.Nodes.createDistortion();
-          me.distortion.connect(_compressor);
+          me.distortion.connect(me.biquad);
 
           _delay = Sound.Nodes.createDelay();
           me.distortion.input(_delay);
