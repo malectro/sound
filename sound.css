@@ -6,9 +6,16 @@ body {
 }
 
 .sequencer {
-  float: left;
+  position: absolute;
+  top: 10px;
+  left: 10px;
   width: 800px;
-  margin-right: 10px;
+  transition: left 200ms, margin-left 200ms;
+}
+body.presentation .sequencer {
+  position: absolute;
+  left: 50%;
+  margin-left: -400px;
 }
 
 .node {
@@ -60,11 +67,19 @@ body {
 
 
 .controls {
+  position: absolute;
+  top: 10px;
+  left: 820px;
   color: #eee;
   float: left;
   font-weight: normal;
   /* text-shadow: 0 -1px 1px #aaa; */
+  transition: opacity 200ms;
 }
+body.presentation .controls {
+  opacity: 0;
+}
+
 .controls > label {
   display: block;
   margin-top: 10px;
