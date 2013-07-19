@@ -422,12 +422,17 @@ var Sound = (function ($) {
               for (j = 0; j < NOTES; j++) {
                   node = $('<div />').addClass('node').appendTo(track);
 
-                  node.click(function (i, j) {
-                      return function () {
+                  node.mousedown(function (i, j) {
+                      return function (e) {
                           $(this).toggleClass('on');
                           me.toggle(i, j);
+                          e.preventDefault();
                       }
-                  }(i, j));
+                  }(i, j)).mouseenter(function () {
+                    if (Sound.Controls.downmouse) {
+                      $(this).mousedown();
+                    }
+                  });
 
                   _nodes[i][j] = node;
               }
@@ -513,6 +518,9 @@ var Sound = (function ($) {
     }(me));
 
     me.Controls = (function (Sound) {
+      var Controls = {};
+
+      Controls.downmouse = false;
 
       $(document.body).keydown(function (e) {
         if (e.which === 32) {
@@ -521,6 +529,10 @@ var Sound = (function ($) {
         } else if (e.which === 27) {
           presentationMode();
         }
+      }).mousedown(function() {
+        Controls.downmouse = true;
+      }).mouseup(function () {
+        Controls.downmouse = false;
       });
 
       function presentationMode() {
@@ -602,6 +614,7 @@ var Sound = (function ($) {
         Sound.Output.distortion.curve($(this).rangeVal());
       });
 
+      return Controls;
     }(me));
 
     me.test = function () {
