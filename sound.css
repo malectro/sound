@@ -1,19 +1,23 @@
 .clearfix:after{content:".";display:block;clear:both;visibility:hidden;line-height:0;height:0;}.clearfix{display:inline-block;}html[xmlns] .clearfix{display:block;}* html .clearfix{height:1%;}div.clearfix{display:block;}
 
+body, html {
+  margin: 0;
+  padding: 0;
+}
 body {
   background: #111;
   font-family: Helvetica;
 }
 
-.sequencer {
+#sequencer .sequencer {
   position: absolute;
   top: 10px;
   left: 10px;
+  margin: 0;
   width: 800px;
   transition: left 200ms, margin-left 200ms;
 }
-body.presentation .sequencer {
-  position: absolute;
+body.presentation #sequencer .sequencer {
   left: 50%;
   margin-left: -400px;
 }
