@@ -121,10 +121,13 @@ var Sound = (function ($) {
               659.255,
               783.991,
               880.000,
-              1046.50
+              987.767,
+              1046.50,
+              1174.66,
+              1318.51
             ];
 
-            _scale = _majorScale;
+            _scale = _pScale;
             TRACKS = _scale.length;
         }
         else {
