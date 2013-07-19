@@ -515,23 +515,26 @@ var Sound = (function ($) {
     me.Controls = (function (Sound) {
 
       $(document.body).keydown(function (e) {
-        var $body = $('body');
-
         if (e.which === 32) {
           e.preventDefault();
           me.playPause();
         } else if (e.which === 27) {
-          var pres = $body.hasClass('presentation');
-          $body.toggleClass('presentation');
-          setTimeout(function () {
-            if (pres) {
-              $('.controls').show();
-            } else {
-              $('.controls').hide();
-            }
-          }, 200);
+          presentationMode();
         }
       });
+
+      function presentationMode() {
+        var $body = $('body');
+        var pres = $body.hasClass('presentation');
+        $body.toggleClass('presentation');
+        setTimeout(function () {
+          if (pres) {
+            $('.controls').show();
+          } else {
+            $('.controls').hide();
+          }
+        }, 200);
+      }
 
       $('.scale').change(function () {
         if ($(this).attr('selectedIndex') === 0) {
@@ -548,6 +551,10 @@ var Sound = (function ($) {
 
       $('.style').change(function () {
         $('#sequencer').attr('className', $(this).val());
+      });
+
+      $('.style-mode').click(function () {
+        presentationMode();
       });
 
       $('.sample-rate').val(100).change(function () {
