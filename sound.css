@@ -20,6 +20,11 @@ body {
   border-radius: 10px;
   background: -moz-linear-gradient(#666 0%, #555 10%, #444 90%, #333 100%);
 }
+.node {
+  width: 23px;
+  height: 23px;
+  border-radius: 5px;
+}
 
 .node.on {
   background: #999;

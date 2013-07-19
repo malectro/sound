@@ -70,7 +70,7 @@ var Sound = (function ($) {
         PI = Math.PI,
         TRACKS = 11,
         TEMPO = 60, //bpm
-        NOTES = 16, //notes per beat
+        NOTES = 32, //notes per beat
 
         DSP = ((new Audio()).mozWriteAudio) ? true : false,
 
@@ -515,8 +515,10 @@ var Sound = (function ($) {
       $('.scale').change(function () {
         if ($(this).attr('selectedIndex') === 0) {
           _scale = _majorScale;
+          $('body').removeClass('pentatonic');
         } else {
           _scale = _pScale;
+          $('body').addClass('pentatonic');
         }
 
         TRACKS = _scale.length;
