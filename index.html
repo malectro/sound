@@ -5,10 +5,16 @@
     <link rel="stylesheet" href="sound.css" type="text/css" />
   </head>
   <body>
-     <div class="sequencer-case"></div>
+     <div class="sequencer"></div>
 
      <div class="controls">
        <button onclick="Sound.playPause();">Play/Pause</button>
+
+       <label>Scale</label>
+       <select class="scale">
+         <option value="0" selected="true">Diatonic</option>
+         <option value="1">Pentatonic</option>
+       </select>
 
        <label>Attack</label>
        <input type="range" class="attack" />

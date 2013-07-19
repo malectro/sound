@@ -75,26 +75,57 @@ var Sound = (function ($) {
         DSP = ((new Audio()).mozWriteAudio) ? true : false,
 
         AudioCtx,
-        _scale;
+        _scale,
+        _majorScale,
+        _pScale;
 
         if (webkitAudioContext) {
           AudioCtx = new webkitAudioContext;
         }
 
         if (DSP || AudioCtx) {
-            _scale = [
+            _majorScale = [
                 65.4064,
                 82.4069,
-                98,
-                130.81,
-                164.81,
-                196.00,
-                261.63,
+                97.9989,
+                130.813,
+                164.814,
+                195.998,
+                261.626,
                 329.628,
                 391.995,
                 523.251,
-                1046.302
+                659.255,
+                783.991,
+                1046.50
             ];
+
+            _pScale = [
+              65.4064,
+              73.4162,
+              82.4069,
+              97.9989,
+              110.000,
+              130.813,
+              146.832,
+              164.814,
+              195.998,
+              220.000,
+              261.626,
+              293.665,
+              329.628,
+              391.995,
+              440.000,
+              523.251,
+              587.330,
+              659.255,
+              783.991,
+              880.000,
+              1046.50
+            ];
+
+            _scale = _majorScale;
+            TRACKS = _scale.length;
         }
         else {
             _scale = [
@@ -361,37 +392,42 @@ var Sound = (function ($) {
             _prev = 0,
             _location = 0;
 
-        //gen tracks
-        for (var i = 0, j = 0; i < TRACKS; i++) {
-            _tracks[i] = [];
-            _nodes[i] = [];
+        me.gen = function () {
+          //gen tracks
+          for (var i = 0, j = 0; i < TRACKS; i++) {
+              _tracks[i] = [];
+              _nodes[i] = [];
 
-            for (j = 0; j < NOTES; j++) {
-                _tracks[i][j] = 0;
-            }
-        }
+              for (j = 0; j < NOTES; j++) {
+                  _tracks[i][j] = 0;
+              }
+          }
 
-        //gen gui
-        var sequencer = $('<div />').addClass('sequencer clearfix'),
-            track, node;
+          //gen gui
+          var sequencer = $('<div />').addClass('sequencer clearfix'),
+              track, node;
 
-        for (i = 0; i < TRACKS; i++) {
-            track = $('<div />').addClass('track').appendTo(sequencer);
+          for (i = 0; i < TRACKS; i++) {
+              track = $('<div />').addClass('track').appendTo(sequencer);
 
-            for (j = 0; j < NOTES; j++) {
-                node = $('<div />').addClass('node').appendTo(track);
+              for (j = 0; j < NOTES; j++) {
+                  node = $('<div />').addClass('node').appendTo(track);
 
-                node.click(function (i, j) {
-                    return function () {
-                        $(this).toggleClass('on');
-                        me.toggle(i, j);
-                    }
-                }(i, j));
+                  node.click(function (i, j) {
+                      return function () {
+                          $(this).toggleClass('on');
+                          me.toggle(i, j);
+                      }
+                  }(i, j));
 
-                _nodes[i][j] = node;
-            }
-        }
-        sequencer.appendTo('.sequencer-case');
+                  _nodes[i][j] = node;
+              }
+          }
+
+          sequencer.replaceAll('.sequencer');
+        };
+
+        me.gen();
 
         function _tick() {
             var prev = _location;
@@ -474,6 +510,17 @@ var Sound = (function ($) {
           e.preventDefault();
           me.playPause();
         }
+      });
+
+      $('.scale').change(function () {
+        if ($(this).attr('selectedIndex') === 0) {
+          _scale = _majorScale;
+        } else {
+          _scale = _pScale;
+        }
+
+        TRACKS = _scale.length;
+        Sound.Tracks.gen();
       });
 
       $('.sample-rate').val(100).change(function () {
