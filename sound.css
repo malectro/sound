@@ -13,32 +13,49 @@ body {
 
 .node {
   float: left;
-  width: 48px;
-  height: 48px;
-  margin: 0 0 2px 2px;
-  background-color: #666;
-  border-radius: 10px;
-  background: -moz-linear-gradient(#666 0%, #555 10%, #444 90%, #333 100%);
-}
-.node {
   width: 23px;
   height: 23px;
   border-radius: 5px;
+  margin: 0 0 2px 2px;
+  background-color: #666;
+  background: -moz-linear-gradient(#666 0%, #555 10%, #444 90%, #333 100%);
+}
+.node {
+}
+.starfield .node {
+  width: 25px;
+  height: 25px;
+  margin: 0;
+  border-radius: 0;
+  background: #111;
+  transition: opacity 200ms ease-out;
 }
 
 .node.on {
   background: #999;
   background: -moz-linear-gradient(#ccc 0%, #aaa 10%, #999 90%, #888 100%);
 }
+.starfield .node.on {
+  background: radial-gradient(#333, #111, #111);
+  opacity: 0.3;
+  background: radial-gradient(#fff, #111, #111);
+}
 
 .node.ticked {
   background: #99e;
   background: -moz-linear-gradient(#ccc 0%, #aaa 10%, #999 90%, #888 100%);
 }
+.starfield .node.ticked {
+  background: #111;
+}
 
 .node.on.ticked {
   background: #eee;
   background: -moz-linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #ccc 100%);
+}
+.starfield .node.on.ticked {
+  opacity: 1;
+  background: radial-gradient(#fff, #111, #111);
 }
 
 

@@ -534,6 +534,10 @@ var Sound = (function ($) {
         Sound.Tracks.gen();
       });
 
+      $('.style').change(function () {
+        $('#sequencer').attr('className', $(this).val());
+      });
+
       $('.sample-rate').val(100).change(function () {
         SAMPLE_RATE = parseInt($(this).val() * SAMPLE_RANGE / 100 + MIN_SAMPLE_RATE, 10);
         // this now longer does crap
