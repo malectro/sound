@@ -60,6 +60,8 @@ var Sound = (function ($) {
     var me = {},
         Sound = me,
 
+        Params = {},
+
         MAX_SAMPLE_RATE = 44100,
         MIN_SAMPLE_RATE = 22050,
         SAMPLE_RANGE = MAX_SAMPLE_RATE - MIN_SAMPLE_RATE,
@@ -78,6 +80,21 @@ var Sound = (function ($) {
         _scale,
         _majorScale,
         _pScale;
+
+        if (location.search) {
+          var el;
+          var list = location.search.slice(1).split('&');
+
+          for (var i = 0; i < list.length; i++) {
+            el = list[i].split('=');
+            Params[el[0]] = el[1];
+          }
+
+          if (Params.t) {
+            TEMPO = parseInt(Params.t, 10);
+          }
+        }
+        Sound.Params = Params;
 
         if (webkitAudioContext) {
           AudioCtx = Sound.ctx = new webkitAudioContext;
@@ -141,6 +158,23 @@ var Sound = (function ($) {
                 'C4'
             ];
         }
+
+    me.paramsString = function () {
+      var st = [];
+
+      for (var i in Params) {
+        st.push(i + '=' + Params[i]);
+      }
+
+      return st.join('&');
+    };
+
+    me.push = function () {
+      Params.g = me.Tracks.tracksMask();
+      Params.t = TEMPO;
+
+      history.pushState({}, '', '?' + me.paramsString());
+    };
 
     me.Nodes = (function () {
       var me = {};
@@ -422,7 +456,7 @@ var Sound = (function ($) {
         me.clear = function () {
           me.clearTracks();
           me.gen();
-          history.pushState({}, '', location.pathname);
+          Sound.push();
         };
 
         me.gen = function () {
@@ -504,7 +538,7 @@ var Sound = (function ($) {
             }
 
             setTimeout(function () {
-              history.pushState({}, '', '?g=' + me.tracksMask());
+              Sound.push();
             }, 0);
 
             return _tracks[track][location];
@@ -654,6 +688,9 @@ var Sound = (function ($) {
         TEMPO = parseInt(1.2 * $(this).val(), 10);
         me.Tracks.stop();
         me.Tracks.start();
+        setTimeout(function () {
+          Sound.push();
+        }, 0);
       });
 
       $('.sustain').val(200).change(function () {
