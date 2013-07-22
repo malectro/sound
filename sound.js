@@ -566,7 +566,7 @@ var Sound = (function ($) {
               mask += _tracks[i][j];
             }
 
-            hash += mask + ',';
+            hash += mask + 'x';
           }
 
           return hash;
@@ -578,7 +578,7 @@ var Sound = (function ($) {
             var masks;
 
             if (mask) {
-              masks = mask.split(',');
+              masks = mask.split('x');
 
               for (var i = 0; i < TRACKS; i++) {
                 mask = masks[i];
