@@ -684,7 +684,7 @@ var Sound = (function ($) {
         // this now longer does crap
       }).range(22050, 44100, 1);
 
-      $('.tempo').val(50).change(function() {
+      $('.tempo').val(Math.floor(TEMPO / 120 * 100)).change(function() {
         TEMPO = parseInt(1.2 * $(this).val(), 10);
         me.Tracks.stop();
         me.Tracks.start();
