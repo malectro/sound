@@ -401,7 +401,13 @@ var Sound = (function ($) {
             _prev = 0,
             _location = 0;
 
-        me.gen = function () {
+        me.init = function () {
+          me.clearTracks();
+          me.parseMask();
+          me.gen();
+        };
+
+        me.clearTracks = function () {
           //gen tracks
           for (var i = 0, j = 0; i < TRACKS; i++) {
               _tracks[i] = [];
@@ -411,7 +417,9 @@ var Sound = (function ($) {
                   _tracks[i][j] = 0;
               }
           }
+        };
 
+        me.gen = function () {
           //gen gui
           var sequencer = $('<div />').addClass('sequencer clearfix'),
               track, node;
@@ -421,6 +429,10 @@ var Sound = (function ($) {
 
               for (j = 0; j < NOTES; j++) {
                   node = $('<div />').addClass('node').appendTo(track);
+
+                  if (_tracks[i][j]) {
+                    node.addClass('on');
+                  }
 
                   node.mousedown(function (i, j) {
                       return function (e) {
@@ -440,8 +452,6 @@ var Sound = (function ($) {
 
           sequencer.replaceAll('.sequencer');
         };
-
-        me.gen();
 
         function _tick() {
             var prev = _location;
@@ -487,7 +497,61 @@ var Sound = (function ($) {
                 _tracks[track][location] = 1;
             }
 
+            setTimeout(function () {
+              history.pushState({}, '', '?g=' + me.tracksMask());
+            }, 0);
+
             return _tracks[track][location];
+        };
+
+        me.flatTracks = function () {
+          var hash = '';
+
+          for (var i = 0; i < _tracks.length; i++) {
+            hash += _tracks[i].join('');
+          }
+
+          return hash;
+        };
+
+        me.tracksMask = function () {
+          var hash = '';
+          var mask;
+
+          for (var i = 0; i < TRACKS; i++) {
+            mask = 0;
+
+            for (var j = 0; j < NOTES; j++) {
+              mask = mask << 1;
+              mask += _tracks[i][j];
+            }
+
+            hash += mask + ',';
+          }
+
+          return hash;
+        };
+
+        me.parseMask = function () {
+          if (location.search) {
+            var mask = location.search.slice(3);
+            var masks;
+
+            if (mask) {
+              masks = mask.split(',');
+
+              for (var i = 0; i < TRACKS; i++) {
+                mask = masks[i];
+
+                for (var j = 0; j < NOTES; j++) {
+                  _tracks[i][NOTES - j - 1] = mask & 1;
+                  mask = mask >> 1;
+                }
+              }
+            }
+          }
+
+          return _tracks;
         };
 
         me.start = function () {
@@ -513,6 +577,8 @@ var Sound = (function ($) {
             me.start();
           }
         };
+
+        me.init();
 
         return me;
     }(me));
@@ -558,7 +624,9 @@ var Sound = (function ($) {
         }
 
         TRACKS = _scale.length;
+        Sound.Tracks.clearTracks();
         Sound.Tracks.gen();
+        history.pushState({}, '', location.pathname);
       });
 
       $('.style').change(function () {
