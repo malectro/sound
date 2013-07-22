@@ -419,6 +419,12 @@ var Sound = (function ($) {
           }
         };
 
+        me.clear = function () {
+          me.clearTracks();
+          me.gen();
+          history.pushState({}, '', location.pathname);
+        };
+
         me.gen = function () {
           //gen gui
           var sequencer = $('<div />').addClass('sequencer clearfix'),
@@ -624,9 +630,7 @@ var Sound = (function ($) {
         }
 
         TRACKS = _scale.length;
-        Sound.Tracks.clearTracks();
-        Sound.Tracks.gen();
-        history.pushState({}, '', location.pathname);
+        Sound.Tracks.clear();
       });
 
       $('.style').change(function () {
@@ -680,6 +684,10 @@ var Sound = (function ($) {
 
       $('.distortion-curve').val(0).range(0, 1).change(function () {
         Sound.Output.distortion.curve($(this).rangeVal());
+      });
+
+      $('.clear').click(function () {
+        Sound.Tracks.clear();
       });
 
       return Controls;
