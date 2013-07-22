@@ -594,6 +594,10 @@ var Sound = (function ($) {
 
       Controls.downmouse = false;
 
+      $('.controls').mousedown(function (e) {
+        e.stopPropagation();
+      });
+
       $(document.body).keydown(function (e) {
         if (e.which === 32) {
           e.preventDefault();
