@@ -242,9 +242,10 @@ var Sound = (function ($) {
 
         node.__amount = 100;
         node.__curve = 0;
+        node.__snap = 0;
 
         node.waveShaper.curve = new Float32Array([
-          0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1
+          0.0, 0.5, 0.7, 0.9, 0.95, 0.985, 0.995, 1
         ]);
 
         node.connect = function (node) {
@@ -258,14 +259,15 @@ var Sound = (function ($) {
 
         node.amount = function (amount) {
           var step = 1 / amount;
+          var piStep = Math.PI / 2;
           var arr = [];
 
           this.__amount = amount;
 
           for (var i = 0; i <= amount; i++) {
-            arr[i] = i * step;
-            arr[i] = (1 - this.__curve) * i * step + this.__curve * Math.cos(i * Math.PI / amount + Math.PI);
-            arr[i] = i * step + (Math.random() * step * 2 - step) * this.__curve;
+            arr[i] = (i * step + Math.sin(i * piStep) * this.__curve + 1 * this.__snap) / (1 + this.__curve + this.__snap);
+            //arr[i] = (1 - this.__curve) * i * step + this.__curve * Math.cos(i * Math.PI / amount + Math.PI);
+            //arr[i] = i * step + (Math.random() * step * 2 - step) * this.__curve;
           }
 
           this.waveShaper.curve = new Float32Array(arr);
@@ -273,6 +275,11 @@ var Sound = (function ($) {
 
         node.curve = function (amount) {
           this.__curve = amount;
+          node.amount(this.__amount);
+        };
+
+        node.snap = function (amount) {
+          this.__snap = amount;
           node.amount(this.__amount);
         };
 
@@ -693,9 +700,9 @@ var Sound = (function ($) {
         }, 0);
       });
 
-      $('.sustain').val(200).change(function () {
+      $('.sustain').val(10).change(function () {
         //SUSTAIN = parseInt($(this).val(), 10);
-        SUSTAIN = 20 * $(this).val();
+        SUSTAIN = 10 * $(this).val();
       }).range(0, 2000, 1);
 
       $('.attack').val(1).change(function () {
@@ -719,12 +726,16 @@ var Sound = (function ($) {
         Sound.Output.distortion.wetDry.setWet($(this).rangeVal());
       });
 
-      $('.distortion-depth').val(100).range(0, 100).change(function () {
+      $('.distortion-depth').val(100).range(1, 100).change(function () {
         Sound.Output.distortion.amount($(this).rangeVal());
-      });
+      }).val(20);
 
       $('.distortion-curve').val(0).range(0, 1).change(function () {
         Sound.Output.distortion.curve($(this).rangeVal());
+      });
+
+      $('.distortion-snap').val(0).range(0, 1).change(function () {
+        Sound.Output.distortion.snap($(this).rangeVal());
       });
 
       $('.clear').click(function () {
