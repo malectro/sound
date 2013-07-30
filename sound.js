@@ -172,6 +172,16 @@ var Sound = (function ($) {
     me.push = function () {
       Params.g = me.Tracks.tracksMask();
       Params.t = TEMPO;
+      Params.a = ATTACK;
+      Params.s = SUSTAIN;
+
+      Params.deT = Sound.Output.delay.delay.delayTime.value.toFixed(3);
+      Params.deA = Sound.Output.delay.wetDry.wet.gain.value.toFixed(3);
+      Params.deF = Sound.Output.delay.feedback.wet.gain.value.toFixed(3);
+
+      Params.diA = Sound.Output.distortion.wetDry.wet.gain.value.toFixed(3);
+      Params.diD = Sound.Output.distortion.__amount.toFixed(3);
+      Params.diC = Sound.Output.distortion.__curve.toFixed(3);
 
       history.pushState({}, '', '?' + me.paramsString());
     };
