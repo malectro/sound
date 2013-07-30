@@ -69,7 +69,10 @@ var Sound = (function ($) {
           deF: 0,
           diA: 0,
           diD: 100,
-          diC: 0
+          diC: 0,
+          p: 0,
+          st: 'b',
+          sc: 'p'
         },
 
         MAX_SAMPLE_RATE = 44100,
@@ -683,24 +686,34 @@ var Sound = (function ($) {
       function presentationMode() {
         var $body = $('body');
         var pres = $body.hasClass('presentation');
+
         $body.toggleClass('presentation');
+
         setTimeout(function () {
           if (pres) {
+            Params.p = 0;
             $('.controls').show();
           } else {
+            Params.p = 1;
             $('.controls').hide();
           }
           Sound.deferPush();
         }, 200);
       }
 
+      if (Params.p === '1') {
+        presentationMode();
+      }
+
       $('.scale').change(function () {
         if ($(this).attr('selectedIndex') === 0) {
           _scale = _majorScale;
           $('body').removeClass('pentatonic');
+          Params.sc = 'd';
         } else {
           _scale = _pScale;
           $('body').addClass('pentatonic');
+          Params.sc = 'p';
         }
 
         TRACKS = _scale.length;
@@ -710,8 +723,9 @@ var Sound = (function ($) {
 
       $('.style').change(function () {
         $('#sequencer').attr('className', $(this).val());
+        Params.st = ($(this).val() === 'buttons') ? 'b' : 's';
         Sound.deferPush();
-      });
+      }).attr('selectedIndex', (Params.st === 'b') ? 0 : 1).change();
 
       $('.style-mode').click(function () {
         presentationMode();
@@ -731,44 +745,44 @@ var Sound = (function ($) {
         }, 0);
       });
 
-      $('.sustain').val(10).change(function () {
+      $('.sustain').val(SUSTAIN / 10).change(function () {
         //SUSTAIN = parseInt($(this).val(), 10);
         SUSTAIN = 10 * $(this).val();
         Sound.deferPush();
       }).range(0, 2000, 1);
 
-      $('.attack').val(1).change(function () {
+      $('.attack').val(ATTACK / 2).change(function () {
         //ATTACK = parseInt($(this).val(), 10);
         ATTACK = 2 * $(this).val();
         Sound.deferPush();
       }).range(0, 200, 1);
 
-      $('.delay-time').val(0).change(function () {
+      $('.delay-time').val(Sound.Output.delay.delay.delayTime.value * 50).change(function () {
         Sound.Output.delay.delay.delayTime.value = $(this).rangeVal();
         Sound.deferPush();
       }).range(0, 2);
 
-      $('.delay-wet').val(0).change(function () {
+      $('.delay-wet').val(Sound.Output.delay.wetDry.wet.gain.value * 100).change(function () {
         Sound.Output.delay.wetDry.setWet($(this).rangeVal());
         Sound.deferPush();
       }).range(0, 1);
 
-      $('.delay-feedback').val(0).change(function () {
+      $('.delay-feedback').val(Sound.Output.delay.feedback.wet.gain.value * 200).change(function () {
         Sound.Output.delay.feedback.wet.gain.value = $(this).rangeVal();
         Sound.deferPush();
       }).range(0, 0.5);
 
-      $('.distortion-wet').val(0).range(0, 1).change(function () {
+      $('.distortion-wet').val(Sound.Output.distortion.wetDry.wet.gain.value * 100).range(0, 1).change(function () {
         Sound.Output.distortion.wetDry.setWet($(this).rangeVal());
         Sound.deferPush();
       });
 
-      $('.distortion-depth').val(100).range(1, 100).change(function () {
+      $('.distortion-depth').val(Sound.Output.distortion.__amount).range(1, 100).change(function () {
         Sound.Output.distortion.amount($(this).rangeVal());
         Sound.deferPush();
-      }).val(20);
+      });
 
-      $('.distortion-curve').val(0).range(0, 1).change(function () {
+      $('.distortion-curve').val(Sound.Output.distortion.__curve * 100).range(0, 1).change(function () {
         Sound.Output.distortion.curve($(this).rangeVal());
         Sound.deferPush();
       });
