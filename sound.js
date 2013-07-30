@@ -60,7 +60,17 @@ var Sound = (function ($) {
     var me = {},
         Sound = me,
 
-        Params = {},
+        Params = {
+          t: 60,
+          a: 1,
+          s: 200,
+          deA: 0,
+          deT: 1,
+          deF: 0,
+          diA: 0,
+          diD: 100,
+          diC: 0
+        },
 
         MAX_SAMPLE_RATE = 44100,
         MIN_SAMPLE_RATE = 22050,
@@ -93,7 +103,11 @@ var Sound = (function ($) {
           if (Params.t) {
             TEMPO = parseInt(Params.t, 10);
           }
+
+          SUSTAIN = Params.s || SUSTAIN;
+          ATTACK = Params.a || SUSTAIN;
         }
+
         Sound.Params = Params;
 
         if (webkitAudioContext) {
@@ -169,6 +183,10 @@ var Sound = (function ($) {
       return st.join('&');
     };
 
+    me.deferPush = function () {
+      setTimeout(me.push, 0);
+    };
+
     me.push = function () {
       Params.g = me.Tracks.tracksMask();
       Params.t = TEMPO;
@@ -217,13 +235,13 @@ var Sound = (function ($) {
         var node = {};
 
         node.delay = AudioCtx.createDelay(2);
-        node.delay.delayTime.value = 0.2;
+        node.delay.delayTime.value = Params.deT;
 
         node.wetDry = me.createWetDry();
-        node.wetDry.setWet(0);
+        node.wetDry.setWet(Params.deA);
 
         node.feedback = me.createWetDry();
-        node.feedback.setWetDry(0, 1);
+        node.feedback.setWetDry(Params.deF, 1);
 
         node.wetDry.wet.connect(node.delay);
         node.feedback.input(node.delay);
@@ -246,12 +264,12 @@ var Sound = (function ($) {
 
         node.waveShaper = AudioCtx.createWaveShaper();
         node.wetDry = me.createWetDry();
-        node.wetDry.setWet(0);
+        node.wetDry.setWet(Params.diA - 0);
 
         node.wetDry.wet.connect(node.waveShaper);
 
-        node.__amount = 100;
-        node.__curve = 0;
+        node.__amount = Params.diD - 0;
+        node.__curve = Params.diC - 0;
         node.__snap = 0;
 
         node.waveShaper.curve = new Float32Array([
@@ -293,7 +311,7 @@ var Sound = (function ($) {
           node.amount(this.__amount);
         };
 
-        node.amount(20);
+        node.amount(Params.diD - 0);
 
         return node;
       };
@@ -672,6 +690,7 @@ var Sound = (function ($) {
           } else {
             $('.controls').hide();
           }
+          Sound.deferPush();
         }, 200);
       }
 
@@ -686,10 +705,12 @@ var Sound = (function ($) {
 
         TRACKS = _scale.length;
         Sound.Tracks.clear();
+        Sound.deferPush();
       });
 
       $('.style').change(function () {
         $('#sequencer').attr('className', $(this).val());
+        Sound.deferPush();
       });
 
       $('.style-mode').click(function () {
@@ -713,39 +734,48 @@ var Sound = (function ($) {
       $('.sustain').val(10).change(function () {
         //SUSTAIN = parseInt($(this).val(), 10);
         SUSTAIN = 10 * $(this).val();
+        Sound.deferPush();
       }).range(0, 2000, 1);
 
       $('.attack').val(1).change(function () {
         //ATTACK = parseInt($(this).val(), 10);
         ATTACK = 2 * $(this).val();
+        Sound.deferPush();
       }).range(0, 200, 1);
 
       $('.delay-time').val(0).change(function () {
         Sound.Output.delay.delay.delayTime.value = $(this).rangeVal();
+        Sound.deferPush();
       }).range(0, 2);
 
       $('.delay-wet').val(0).change(function () {
         Sound.Output.delay.wetDry.setWet($(this).rangeVal());
+        Sound.deferPush();
       }).range(0, 1);
 
       $('.delay-feedback').val(0).change(function () {
         Sound.Output.delay.feedback.wet.gain.value = $(this).rangeVal();
+        Sound.deferPush();
       }).range(0, 0.5);
 
       $('.distortion-wet').val(0).range(0, 1).change(function () {
         Sound.Output.distortion.wetDry.setWet($(this).rangeVal());
+        Sound.deferPush();
       });
 
       $('.distortion-depth').val(100).range(1, 100).change(function () {
         Sound.Output.distortion.amount($(this).rangeVal());
+        Sound.deferPush();
       }).val(20);
 
       $('.distortion-curve').val(0).range(0, 1).change(function () {
         Sound.Output.distortion.curve($(this).rangeVal());
+        Sound.deferPush();
       });
 
       $('.distortion-snap').val(0).range(0, 1).change(function () {
         Sound.Output.distortion.snap($(this).rangeVal());
+        Sound.deferPush();
       });
 
       $('.clear').click(function () {
