@@ -532,6 +532,13 @@ var Sound = (function ($) {
         };
 
         function _tick() {
+          var ct = AudioCtx.currentTime;
+
+          if (ct < me.ct + me.interval) {
+            return
+          }
+          me.ct += me.interval;
+
             var prev = _location;
 
             _location++;
@@ -637,9 +644,10 @@ var Sound = (function ($) {
                 return;
             }
 
-            var interval = 60000 / (TEMPO * NOTES);
+            me.interval = 60 / (TEMPO * NOTES);
+            me.ct = AudioCtx.currentTime;
 
-            _interval = setInterval(_tick, interval);
+            _interval = setInterval(_tick, 10);
         };
 
         me.stop = function () {
