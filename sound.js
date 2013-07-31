@@ -210,11 +210,23 @@ var Sound = (function ($) {
     me.Nodes = (function () {
       var me = {};
 
+      function createGain() {
+        if (AudioCtx.createGain) {
+          return AudioCtx.createGain();
+        } else {
+          return AudioCtx.createGainNode();
+        }
+      }
+
+      function createDelay() {
+
+      }
+
       me.createWetDry = function () {
         var node = {};
 
-        node.wet = AudioCtx.createGain();
-        node.dry = AudioCtx.createGain();
+        node.wet = createGain();
+        node.dry = createGain();
 
         node.setWet = function (percentage) {
           this.wet.gain.value = percentage;
@@ -237,7 +249,11 @@ var Sound = (function ($) {
       me.createDelay = function () {
         var node = {};
 
-        node.delay = AudioCtx.createDelay(2);
+        if (AudioCtx.createDelay) {
+          node.delay = AudioCtx.createDelay(2);
+        } else {
+          node.delay = AudioCtx.createDelayNode(2);
+        }
         node.delay.delayTime.value = Params.deT;
 
         node.wetDry = me.createWetDry();
@@ -456,7 +472,11 @@ var Sound = (function ($) {
               track.mozWriteAudio(buffer);
             } else if (AudioCtx) {
               track.buffer = buffer;
-              track.start(0);
+              if (track.start) {
+                track.start(0);
+              } else {
+                track.noteOn(0);
+              }
             }
         };
 
