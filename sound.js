@@ -667,6 +667,14 @@ var Sound = (function ($) {
             me.interval = 60 / (TEMPO * NOTES);
             me.ct = AudioCtx.currentTime;
 
+            // terribly hacky test
+            if ('ipad' && AudioCtx.createGainNode) {
+              var node = AudioCtx.createOscillator();
+              node.connect(AudioCtx.destination);
+              node.noteOn(0);
+              node.noteOff(0);
+            }
+
             _interval = setInterval(_tick, 10);
         };
 
