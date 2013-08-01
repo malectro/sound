@@ -855,7 +855,7 @@ var Sound = (function ($) {
       $('.delay-feedback').val(Sound.Output.delay.feedback.wet.gain.value * 200).on('change', function () {
         Sound.Output.delay.feedback.wet.gain.value = $(this).rangeVal();
         Sound.deferPush();
-      }).range(0, 0.5);
+      }).range(0, 1);
 
       $('.distortion-wet').val(Sound.Output.distortion.wetDry.wet.gain.value * 100).range(0, 1)
         .on('change', function () {
