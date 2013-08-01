@@ -55,6 +55,40 @@ jQuery.fn.rangeVal = function () {
   return this.val() * (rangeInfo.max - rangeInfo.min) / 100 + rangeInfo.min;
 };
 
+(function ($) {
+  var oldOn = $.fn.on;
+
+  var _eventMap = {
+    'click': 'touchstart',
+    'mousedown': 'touchstart',
+    'mousemove': 'touchmove',
+    'mouseup': 'touchend'
+  };
+
+  $.fn.touchon = function (events, handler) {
+    var events = events.split(' ');
+    var touchEvents = [];
+    var normalEvents = [];
+
+    $.each(events, function (i, event) {
+      if (_eventMap[event]) {
+        touchEvents.push(_eventMap[event]);
+      } else {
+        normalEvents.push(event);
+      }
+    });
+
+    this.each(function () {
+      var self = this;
+      $.each(touchEvents, function (i, event) {
+        self.addEventListener(event, handler);
+      });
+    });
+
+    return oldOn.call(this, normalEvents.join(' '), handler);
+  };
+}(jQuery));
+
 
 var Sound = (function ($) {
     var me = {},
@@ -75,6 +109,9 @@ var Sound = (function ($) {
           sc: 'p'
         },
 
+        // I remember Touch
+        TOUCH = 'ontouchstart' in document.documentElement,
+
         MAX_SAMPLE_RATE = 44100,
         MIN_SAMPLE_RATE = 22050,
         SAMPLE_RANGE = MAX_SAMPLE_RATE - MIN_SAMPLE_RATE,
@@ -93,6 +130,10 @@ var Sound = (function ($) {
         _scale,
         _majorScale,
         _pScale;
+
+      if (TOUCH) {
+        $.fn.on = $.fn.touchon;
+      }
 
         if (location.search) {
           var el;
@@ -532,17 +573,20 @@ var Sound = (function ($) {
                     node.addClass('on');
                   }
 
-                  node.mousedown(function (i, j) {
-                      return function (e) {
-                          $(this).toggleClass('on');
-                          me.toggle(i, j);
-                          e.preventDefault();
-                      }
-                  }(i, j)).mouseenter(function () {
-                    if (Sound.Controls.downmouse) {
-                      $(this).mousedown();
+                  var _mousedown = (function (i, j) {
+                    return function (e) {
+                      $(this).toggleClass('on');
+                      me.toggle(i, j);
+                      e.preventDefault();
                     }
-                  });
+                  }(i, j));
+
+                  node.on('mousedown', _mousedown)
+                    .on('mouseenter', function (e) {
+                      if (Sound.Controls.downmouse) {
+                        _mousedown.call(this, e);
+                      }
+                    });
 
                   _nodes[i][j] = node;
               }
@@ -702,7 +746,11 @@ var Sound = (function ($) {
 
       Controls.downmouse = false;
 
-      $('.controls').mousedown(function (e) {
+      $('.playpause').on('click', function (e) {
+        Sound.playPause();
+      });
+
+      $('.controls').on('mousedown', function (e) {
         e.stopPropagation();
       });
 
@@ -713,13 +761,18 @@ var Sound = (function ($) {
         } else if (e.which === 27) {
           presentationMode();
         }
-      }).mousedown(function() {
+      }).on('mousedown', function () {
         Controls.downmouse = true;
-      }).mouseup(function () {
+      }).on('mouseup', function () {
         Controls.downmouse = false;
       });
 
       function presentationMode() {
+        // need to figure this out
+        if (TOUCH) {
+          return;
+        }
+
         var $body = $('body');
         var pres = $body.hasClass('presentation');
 
@@ -741,7 +794,7 @@ var Sound = (function ($) {
         presentationMode();
       }
 
-      $('.scale').change(function () {
+      $('.scale').on('change', function () {
         if ($(this).attr('selectedIndex') === 0) {
           _scale = _majorScale;
           $('body').removeClass('pentatonic');
@@ -757,22 +810,22 @@ var Sound = (function ($) {
         Sound.deferPush();
       });
 
-      $('.style').change(function () {
-        $('#sequencer').attr('className', $(this).val());
+      $('.style').on('change', function () {
+        $('#sequencer').attr('class', $(this).val());
         Params.st = ($(this).val() === 'buttons') ? 'b' : 's';
         Sound.deferPush();
       }).attr('selectedIndex', (Params.st === 'b') ? 0 : 1).change();
 
-      $('.style-mode').click(function () {
+      $('.style-mode').on('click', function () {
         presentationMode();
       });
 
-      $('.sample-rate').val(100).change(function () {
+      $('.sample-rate').val(100).on('change', function () {
         SAMPLE_RATE = parseInt($(this).val() * SAMPLE_RANGE / 100 + MIN_SAMPLE_RATE, 10);
         // this now longer does crap
       }).range(22050, 44100, 1);
 
-      $('.tempo').val(Math.floor(TEMPO / 120 * 100)).change(function() {
+      $('.tempo').val(Math.floor(TEMPO / 120 * 100)).on('change', function() {
         TEMPO = parseInt(1.2 * $(this).val(), 10);
         me.Tracks.stop();
         me.Tracks.start();
@@ -781,54 +834,55 @@ var Sound = (function ($) {
         }, 0);
       });
 
-      $('.sustain').val(SUSTAIN / 10).change(function () {
+      $('.sustain').val(SUSTAIN / 10).on('change', function () {
         //SUSTAIN = parseInt($(this).val(), 10);
         SUSTAIN = 10 * $(this).val();
         Sound.deferPush();
       }).range(0, 2000, 1);
 
-      $('.attack').val(ATTACK / 2).change(function () {
+      $('.attack').val(ATTACK / 2).on('change', function () {
         //ATTACK = parseInt($(this).val(), 10);
         ATTACK = 2 * $(this).val();
         Sound.deferPush();
       }).range(0, 200, 1);
 
-      $('.delay-time').val(Sound.Output.delay.delay.delayTime.value * 50).change(function () {
+      $('.delay-time').val(Sound.Output.delay.delay.delayTime.value * 50).on('change', function () {
         Sound.Output.delay.delay.delayTime.value = $(this).rangeVal();
         Sound.deferPush();
       }).range(0, 2);
 
-      $('.delay-wet').val(Sound.Output.delay.wetDry.wet.gain.value * 100).change(function () {
+      $('.delay-wet').val(Sound.Output.delay.wetDry.wet.gain.value * 100).on('change', function () {
         Sound.Output.delay.wetDry.setWet($(this).rangeVal());
         Sound.deferPush();
       }).range(0, 1);
 
-      $('.delay-feedback').val(Sound.Output.delay.feedback.wet.gain.value * 200).change(function () {
+      $('.delay-feedback').val(Sound.Output.delay.feedback.wet.gain.value * 200).on('change', function () {
         Sound.Output.delay.feedback.wet.gain.value = $(this).rangeVal();
         Sound.deferPush();
       }).range(0, 0.5);
 
-      $('.distortion-wet').val(Sound.Output.distortion.wetDry.wet.gain.value * 100).range(0, 1).change(function () {
-        Sound.Output.distortion.wetDry.setWet($(this).rangeVal());
-        Sound.deferPush();
-      });
+      $('.distortion-wet').val(Sound.Output.distortion.wetDry.wet.gain.value * 100).range(0, 1)
+        .on('change', function () {
+          Sound.Output.distortion.wetDry.setWet($(this).rangeVal());
+          Sound.deferPush();
+        });
 
-      $('.distortion-depth').val(Sound.Output.distortion.__amount).range(1, 100).change(function () {
+      $('.distortion-depth').val(Sound.Output.distortion.__amount).range(1, 100).on('change', function () {
         Sound.Output.distortion.amount($(this).rangeVal());
         Sound.deferPush();
       });
 
-      $('.distortion-curve').val(Sound.Output.distortion.__curve * 100).range(0, 1).change(function () {
+      $('.distortion-curve').val(Sound.Output.distortion.__curve * 100).range(0, 1).on('change', function () {
         Sound.Output.distortion.curve($(this).rangeVal());
         Sound.deferPush();
       });
 
-      $('.distortion-snap').val(0).range(0, 1).change(function () {
+      $('.distortion-snap').val(0).range(0, 1).on('change', function () {
         Sound.Output.distortion.snap($(this).rangeVal());
         Sound.deferPush();
       });
 
-      $('.clear').click(function () {
+      $('.clear').on('click', function () {
         Sound.Tracks.clear();
       });
 
