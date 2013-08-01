@@ -259,10 +259,6 @@ var Sound = (function ($) {
         }
       }
 
-      function createDelay() {
-
-      }
-
       me.createWetDry = function () {
         var node = {};
 
@@ -863,6 +859,7 @@ var Sound = (function ($) {
 
       $('.distortion-wet').val(Sound.Output.distortion.wetDry.wet.gain.value * 100).range(0, 1)
         .on('change', function () {
+          console.log($(this).rangeVal());
           Sound.Output.distortion.wetDry.setWet($(this).rangeVal());
           Sound.deferPush();
         });
