@@ -153,10 +153,7 @@ var Sound = (function ($) {
         }
 
         Sound.Params = Params;
-
-        if (webkitAudioContext) {
-          AudioCtx = Sound.ctx = new webkitAudioContext;
-        }
+        AudioCtx = Sound.ctx = new AudioContext();
 
         if (DSP || AudioCtx) {
             _majorScale = [
@@ -708,11 +705,11 @@ var Sound = (function ($) {
             me.ct = AudioCtx.currentTime;
 
             // terribly hacky test
-            if ('ipad' && AudioCtx.createGainNode) {
+            if (true) {
               var node = AudioCtx.createOscillator();
               node.connect(AudioCtx.destination);
-              node.noteOn(0);
-              node.noteOff(0);
+              node.start(0);
+              node.stop(0);
             }
 
             _interval = setInterval(_tick, 10);
